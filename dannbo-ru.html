@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【最新】メルカリ送料・梱包サイズ判定ツール</title>
+    <style>
+        :root { --primary-color: #ff4d4d; --bg-color: #f8f9fa; }
+        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background-color: var(--bg-color); color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { font-size: 1.2rem; text-align: center; color: var(--primary-color); margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 15px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #e60000; }
+        
+        #result { margin-top: 25px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
+        .result-item { background: #fff9f9; border: 1px solid #ffeded; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .price { font-size: 1.5rem; color: var(--primary-color); font-weight: bold; }
+        .badge { display: inline-block; padding: 2px 8px; background: #333; color: white; font-size: 0.7rem; border-radius: 4px; margin-bottom: 5px; }
+        
+        .affiliate-box { margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px; font-size: 0.85rem; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>メルカリ送料判定くん</h1>
+    
+    <div class="input-group">
+        <label>縦 (cm)</label>
+        <input type="number" id="length" placeholder="例: 25">
+    </div>
+    <div class="input-group">
+        <label>横 (cm)</label>
+        <input type="number" id="width" placeholder="例: 18">
+    </div>
+    <div class="input-group">
+        <label>厚さ (cm)</label>
+        <input type="number" id="height" placeholder="例: 2.5">
+    </div>
+    <div class="input-group">
+        <label>重さ (g) ※任意</label>
+        <input type="number" id="weight" placeholder="例: 500">
+    </div>
+
+    <button onclick="judge()">最安の発送方法を調べる</button>
+
+    <div id="result">
+        <div id="best-option" class="result-item">
+            <div class="badge">最安</div>
+            <div id="method-name" style="font-weight:bold;"></div>
+            <div class="price" id="method-price"></div>
+            <div id="method-desc" style="font-size:0.8rem; color:#666;"></div>
+        </div>
+
+        <div class="affiliate-box">
+            <strong>厚さが不安な方はこちらがおすすめ</strong><br>
+            <p>100均より正確！「厚さ測定定規」で送料ミスを防げます。<br>
+            <a href="#" style="color:#0066cc;">[Amazonで厚さ測定定規を見る]</a></p>
+            <!-- ↑ ここが将来の収益源になります -->
+        </div>
+    </div>
+</div>
+
+<script>
+function judge() {
+    const l = parseFloat(document.getElementById('length').value);
+    const w = parseFloat(document.getElementById('width').value);
+    const h = parseFloat(document.getElementById('height').value);
+    const g = parseFloat(document.getElementById('weight').value) || 0;
+
+    if (!l || !w || !h) {
+        alert("サイズを入力してください");
+        return;
+    }
+
+    const total = l + w + h;
+    const resultDiv = document.getElementById('result');
+    let name = "";
+    let price = "";
+    let desc = "";
+
+    // メルカリ送料ロジック (2024年時点の主要なもの)
+    if (l <= 34 && w <= 25 && h <= 3 && g <= 1000) {
+        name = "ネコポス (らくらくメルカリ便)";
+        price = "¥210";
+        desc = "郵便ポストには入りません。ヤマト運輸のサービスです。";
+    } else if (l <= 34 && w <= 24 && h <= 3 && g <= 1000) {
+        name = "ゆうパケット (ゆうゆうメルカリ便)";
+        price = "¥230";
+        desc = "郵便ポストに投函できます。";
+    } else if (l <= 24.8 && w <= 19.3 && h <= 5) {
+        name = "宅急便コンパクト (専用BOX)";
+        price = "¥450 + 箱代¥70";
+        desc = "専用の箱（70円）をコンビニ等で購入する必要があります。";
+    } else if (total <= 60) {
+        name = "宅急便 60サイズ";
+        price = "¥750";
+        desc = "縦・横・厚さの合計が60cm以内。重さ2kgまで。";
+    } else {
+        name = "大型または規格外";
+        price = "¥850〜";
+        desc = "サイズに合わせて80サイズ、100サイズと料金が上がります。";
+    }
+
+    document.getElementById('method-name').innerText = name;
+    document.getElementById('method-price').innerText = price;
+    document.getElementById('method-desc').innerText = desc;
+    resultDiv.style.display = "block";
+}
+</script>
+
+</body>
+</html>
