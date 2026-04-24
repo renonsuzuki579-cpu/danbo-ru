@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N8E29510ZD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-N8E29510ZD');
+</script>
+
+    <!-- Google所有権確認タグ -->
+    <meta name="google-site-verification" content="3JtBnHRzLIJXiTC7LRRXgcmMTxluKNl27tz7M4wJxnI" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【2026最新】メルカリ送料計算ツール | 最安の発送方法を一瞬で判定</title>
+    <meta name="description" content="【2026年3月最新】メルカリ便の送料をサイズ入力だけで自動計算。ゆうパケットポストminiやエコメルカリ便など、一番安い送り方とピッタリな梱包箱がすぐわかります。">
+    <style>
+        :root { --primary-color: #ff4d4d; --bg-color: #f8f9fa; }
+        body { font-family: sans-serif; background-color: var(--bg-color); color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { font-size: 1.2rem; text-align: center; color: var(--primary-color); margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        #result { margin-top: 25px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
+        .result-item { background: #fff9f9; border: 1px solid #ffeded; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .price { font-size: 1.8rem; color: var(--primary-color); font-weight: bold; }
+        .box-info { background: #e7f3ff; border: 1px solid #d0e7ff; padding: 15px; border-radius: 8px; font-size: 0.85rem; }
+        .affiliate-box { margin-top: 20px; padding: 15px; background: #fffde7; border: 1px solid #ffe082; border-radius: 8px; font-size: 0.85rem; text-align: center; }
+        .source-link { text-align: center; font-size: 0.7rem; color: #999; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>メルカリ送料判定くん 2026</h1>
+    <div class="input-group"><label>縦 (cm)</label><input type="number" id="length" placeholder="例: 25"></div>
+    <div class="input-group"><label>横 (cm)</label><input type="number" id="width" placeholder="例: 18"></div>
+    <div class="input-group"><label>厚さ (cm)</label><input type="number" id="height" placeholder="例: 2.5"></div>
+
+    <button onclick="judge()">2026年の最新料金で判定</button>
+
+    <div id="result">
+        <div class="result-item">
+            <div id="method-name" style="font-weight:bold; font-size:1.2rem;"></div>
+            <div class="price" id="method-price"></div>
+            <div id="method-desc" style="font-size:0.8rem; color:#666;"></div>
+        </div>
+        <div class="box-info"><strong>おすすめの梱包資材：</strong><br><div id="box-recommend"></div></div>
+
+        <div class="affiliate-box">
+            <strong>厚さが不安な方はこちら</strong><br>
+            <p>2026年の新規格にも対応！送料ミスを防ぐ必須アイテム</p>
+            <a href="https://a.r10.to/hPXIs4" style="color:#0066cc; font-weight:bold;">【楽天】厚さ測定定規を見る</a>
+        </div>
+    </div>
+
+    <!-- 【追加】出典リンク -->
+    <div class="source-link">
+        データ出典：<a href="https://help.jp.mercari.com/guide/articles/68/" target="_blank" rel="noopener" style="color:#999;">メルカリ公式サイト 配送方法早見表</a><br>
+        ※最新の料金設定を心がけていますが、最終確認は公式サイトで行ってください。
+    </div>
+</div>
+
+<script>
+const boxes = [
+    { name: "ゆうパケットポストmini封筒", l: 21.1, w: 16.8, h: 3, price: "20円" },
+    { name: "ネコポス/ゆうパケット用箱", l: 31, w: 22.6, h: 3, price: "66円〜" },
+    { name: "宅急便コンパクト専用BOX", l: 25, w: 20, h: 5, price: "70円" },
+    { name: "ゆうパケットプラス専用箱", l: 24, w: 17, h: 7, price: "65円" },
+    { name: "クロネコボックス(6)", l: 27, w: 20, h: 13, price: "140円" }
+];
+
+function judge() {
+    const l = parseFloat(document.getElementById('length').value);
+    const w = parseFloat(document.getElementById('width').value);
+    const h = parseFloat(document.getElementById('height').value);
+    if (!l || !w || !h) return;
+
+    const side = [l, w, h].sort((a, b) => b - a);
+    const L = side[0]; const W = side[1]; const H = side[2];
+    const total = l + w + h;
+
+    let mName = ""; let mPrice = ""; let mDesc = "";
+
+    // 2026年最新判定ロジック
+    if (L <= 21.1 && W <= 16.8 && H <= 3) {
+        mName = "ゆうパケットポストmini"; mPrice = "¥160"; mDesc = "2026年最安。郵便ポスト投函。";
+    } else if (L <= 31 && W <= 22.6 && H <= 3) {
+        mName = "ネコポス"; mPrice = "¥210"; mDesc = "らくらくメルカリ便。";
+    } else if (L <= 34 && W <= 23 && H <= 3) {
+        mName = "ゆうパケット"; mPrice = "¥230"; mDesc = "ゆうゆうメルカリ便。";
+    } else if (L <= 25 && W <= 20 && H <= 5) {
+        mName = "宅急便コンパクト"; mPrice = "¥450"; mDesc = "厚さ5cmまで。専用BOXが必要。";
+    } else if (L <= 24 && W <= 17 && H <= 7) {
+        mName = "ゆうパケットプラス"; mPrice = "¥455"; mDesc = "厚さ7cmまで対応。専用箱が必要。";
+    } else if (total <= 100) {
+        mName = "エコメルカリ便"; mPrice = "¥730"; mDesc = "100サイズまで一律！(置き配専用)";
+    } else {
+        mName = "宅急便 120サイズ以上"; mPrice = "¥1,200〜"; mDesc = "3辺合計に応じた料金。";
+    }
+
+    const recommended = boxes.find(box => (L <= box.l && W <= box.w && H <= box.h));
+    document.getElementById('method-name').innerText = mName;
+    document.getElementById('method-price').innerText = mPrice;
+    document.getElementById('method-desc').innerText = mDesc;
+    document.getElementById('box-recommend').innerText = recommended ? `${recommended.name} (${recommended.price})` : "該当する既製箱がありません";
+    document.getElementById('result').style.display = "block";
+}
+</script>
+</body>
+</html>
